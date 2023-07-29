@@ -22,17 +22,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - name: Editor w/ Mono (target=editor)
-          #   cache-name: linux-editor-mono
-          #   target: editor
-          #   tests: false # Disabled due freeze caused by mix Mono build and CI
-          #   sconsflags: module_mono_enabled=yes
-          #   doc-test: true
-          #   bin: "./bin/godot.linuxbsd.editor.x86_64.mono"
-          #   build-mono: true
-          #   proj-conv: true
-          #   artifact: true
-          #   compat: true
+          - name: Editor w/ Mono (target=editor)
+            cache-name: linux-editor-mono
+            target: editor
+            tests: false # Disabled due freeze caused by mix Mono build and CI
+            sconsflags: module_mono_enabled=yes
+            doc-test: true
+            bin: "./bin/godot.linuxbsd.editor.x86_64.mono"
+            build-mono: true
+            proj-conv: true
+            artifact: true
+            compat: true
 
           - name: Editor with doubles and GCC sanitizers (target=editor, tests=yes, dev_build=yes, scu_build=yes, precision=double, use_asan=yes, use_ubsan=yes, linker=gold)
             cache-name: linux-editor-double-sanitizers
@@ -49,30 +49,30 @@ jobs:
             # Skip 2GiB artifact speeding up action.
             artifact: false
 
-          # - name: Editor with clang sanitizers (target=editor, tests=yes, dev_build=yes, use_asan=yes, use_ubsan=yes, use_llvm=yes, linker=lld)
-          #   cache-name: linux-editor-llvm-sanitizers
-          #   target: editor
-          #   tests: true
-          #   sconsflags: dev_build=yes use_asan=yes use_ubsan=yes use_llvm=yes linker=lld
-          #   bin: "./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san"
-          #   build-mono: false
-          #   # Skip 2GiB artifact speeding up action.
-          #   artifact: false
+          - name: Editor with clang sanitizers (target=editor, tests=yes, dev_build=yes, use_asan=yes, use_ubsan=yes, use_llvm=yes, linker=lld)
+            cache-name: linux-editor-llvm-sanitizers
+            target: editor
+            tests: true
+            sconsflags: dev_build=yes use_asan=yes use_ubsan=yes use_llvm=yes linker=lld
+            bin: "./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san"
+            build-mono: false
+            # Skip 2GiB artifact speeding up action.
+            artifact: false
 
-          # - name: Template w/ Mono (target=template_release)
-          #   cache-name: linux-template-mono
-          #   target: template_release
-          #   tests: false
-          #   sconsflags: module_mono_enabled=yes
-          #   build-mono: false
-          #   artifact: true
+          - name: Template w/ Mono (target=template_release)
+            cache-name: linux-template-mono
+            target: template_release
+            tests: false
+            sconsflags: module_mono_enabled=yes
+            build-mono: false
+            artifact: true
 
-          # - name: Minimal template (target=template_release, everything disabled)
-          #   cache-name: linux-template-minimal
-          #   target: template_release
-          #   tests: false
-          #   sconsflags: modules_enabled_by_default=no disable_3d=yes disable_advanced_gui=yes deprecated=no minizip=no
-          #   artifact: true
+          - name: Minimal template (target=template_release, everything disabled)
+            cache-name: linux-template-minimal
+            target: template_release
+            tests: false
+            sconsflags: modules_enabled_by_default=no disable_3d=yes disable_advanced_gui=yes deprecated=no minizip=no
+            artifact: true
 
     steps:
       - uses: actions/checkout@v3
@@ -111,15 +111,15 @@ jobs:
           target: ${{ matrix.target }}
           tests: ${{ matrix.tests }}
 
-      # - name: Generate C# glue
-      #   if: ${{ matrix.build-mono }}
-      #   run: |
-      #     ${{ matrix.bin }} --headless --generate-mono-glue ./modules/mono/glue || true
+      - name: Generate C# glue
+        if: ${{ matrix.build-mono }}
+        run: |
+          ${{ matrix.bin }} --headless --generate-mono-glue ./modules/mono/glue || true
 
-      # - name: Build .NET solutions
-      #   if: ${{ matrix.build-mono }}
-      #   run: |
-      #     ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=linuxbsd
+      - name: Build .NET solutions
+        if: ${{ matrix.build-mono }}
+        run: |
+          ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=linuxbsd
 
       # Execute unit tests for the editor
       - name: Unit tests
