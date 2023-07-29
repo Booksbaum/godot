@@ -146,10 +146,6 @@ protected:
 public:
 	static const int CONFIG_VERSION = 5;
 
-#ifdef TOOLS_ENABLED
-	void reset() { resource_path = ""; };
-#endif
-
 	void set_setting(const String &p_setting, const Variant &p_value);
 	Variant get_setting(const String &p_setting, const Variant &p_default_value = Variant()) const;
 	TypedArray<Dictionary> get_global_class_list();
