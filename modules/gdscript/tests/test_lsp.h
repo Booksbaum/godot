@@ -31,6 +31,10 @@
 #ifndef TEST_LSP_H
 #define TEST_LSP_H
 
+// LSP is only available with tools build.
+// -> Don't run tests otherwise.
+#ifdef TOOLS_ENABLED
+
 #include "tests/test_macros.h"
 
 #include "../language_server/gdscript_extend_parser.h"
@@ -38,6 +42,7 @@
 #include "../language_server/gdscript_workspace.h"
 #include "../language_server/godot_lsp.h"
 
+#include "core/config/project_settings.h"
 #include "core/io/dir_access.h"
 #include "core/io/file_access_pack.h"
 #include "core/os/os.h"
@@ -71,12 +76,16 @@ namespace GDScriptTests {
 
 const String root = "modules/gdscript/tests/lsp_project/";
 
-// `memdelete` returned `GDScriptLanguageProtocol` after use!
+// After use:
+// * `memdelete` returned `GDScriptLanguageProtocol`.
+// * Call `GDScriptTests::::finish_language`
 GDScriptLanguageProtocol *initialize(const String &p_root) {
 	Error err = OK;
 	Ref<DirAccess> dir(DirAccess::open(p_root, &err));
 	REQUIRE_MESSAGE(err == OK, "Could not open specified root directory");
 	String absolute_root = dir->get_current_dir();
+	ProjectSettings::get_singleton()->reset();
+	// ProjectSettings::get_singleton()->resource_path = "";
 	init_language(absolute_root);
 
 	GDScriptLanguageProtocol *proto = memnew(GDScriptLanguageProtocol);
@@ -454,9 +463,11 @@ func f():
 		}
 
 		memdelete(proto);
+		finish_language();
 	}
 }
 
 } // namespace GDScriptTests
 
+#endif // TOOLS_ENABLED
 #endif // TEST_LSP_H
